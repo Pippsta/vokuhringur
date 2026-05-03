@@ -4,7 +4,7 @@
     "chess": "chess.com endgame timestamps (machine-recorded, session-clustered, second-precision)",
     "friend": "friend observations (manual, minute-precision, point observations)"
   },
-  "generated_at": "2026-05-03T18:54:10Z",
+  "generated_at": "2026-05-03T19:01:53Z",
   "timezone_note": "Iceland is UTC year-round (no DST); ts is UTC and equals local time. Friend timestamps are entered in Iceland local time and treated as UTC.",
   "counts": {
     "by_source": {
