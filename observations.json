@@ -4,19 +4,19 @@
     "chess": "chess.com endgame timestamps (machine-recorded, session-clustered, second-precision)",
     "friend": "friend observations (manual, minute-precision, point observations)"
   },
-  "generated_at": "2026-05-03T16:51:17Z",
+  "generated_at": "2026-05-03T18:54:10Z",
   "timezone_note": "Iceland is UTC year-round (no DST); ts is UTC and equals local time. Friend timestamps are entered in Iceland local time and treated as UTC.",
   "counts": {
     "by_source": {
       "chess": 1187,
-      "friend": 50
+      "friend": 63
     },
     "input_rows": {
       "chess": 1193,
-      "friend": 50
+      "friend": 63
     },
     "excluded_daily_games": 6,
-    "total": 1237
+    "total": 1250
   },
   "observations": [
     {
@@ -4948,6 +4948,18 @@
       "source": "friend"
     },
     {
+      "ts": "2026-04-25T04:34:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-04-25T16:01:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-04-26T20:14:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-04-27T09:25:00Z",
       "source": "friend"
     },
@@ -4960,11 +4972,51 @@
       "source": "friend"
     },
     {
+      "ts": "2026-04-27T16:10:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-04-28T02:25:00Z",
       "source": "friend"
     },
     {
+      "ts": "2026-04-28T08:58:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-04-28T16:50:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-04-30T08:39:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-01T14:48:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-02T00:21:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-02T05:45:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-05-02T17:11:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-02T21:10:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-03T05:04:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-03T18:44:00Z",
       "source": "friend"
     }
   ]
