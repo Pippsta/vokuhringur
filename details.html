@@ -155,7 +155,7 @@ import { collapseSessions, fitTau, predict, localDaytime } from "./model.js";
 const COLORS = { chess: "#5b8bb0", friend: "#d97757" };
 const SYMBOLS = { chess: "circle", friend: "diamond" };
 
-const data = await fetch("./observations.json").then(r => r.json());
+const data = await fetch("./observations.json?v=" + Date.now()).then(r => r.json());
 const obs = data.observations.map(o => ({ ts: new Date(o.ts), source: o.source }));
 const total = obs.length;
 const first = obs[0].ts;

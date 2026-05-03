@@ -185,7 +185,7 @@
 import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
 import { collapseSessions, fitTau, predict } from "./model.js";
 
-const data = await fetch("./observations.json").then(r => r.json());
+const data = await fetch("./observations.json?v=" + Date.now()).then(r => r.json());
 const obs = data.observations.map(o => ({ ts: new Date(o.ts), source: o.source }));
 const events = collapseSessions(obs);
 const nowMs = Date.now();
