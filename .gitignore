@@ -1,0 +1,14 @@
+# Local Claude Code settings (per-machine permissions)
+.claude/settings.local.json
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+
+# OS / app temp files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Excel/Word lock files
+~$*

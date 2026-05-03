@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<title>Vökuhringur — details</title>
+<style>
+  :root {
+    --fg: #1c1c1e;
+    --fg-muted: #6b6b70;
+    --bg: #fbfaf7;
+    --panel: #f1efe9;
+    --rule: #d9d6cf;
+    --chess: #5b8bb0;
+    --friend: #d97757;
+    --low: #6b6b70;
+    --med: #b88500;
+    --high: #2f7d3a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 24px 64px; }
+  nav.top { margin-bottom: 16px; font-size: 13px; }
+  nav.top a { color: var(--fg-muted); text-decoration: none; }
+  nav.top a:hover { color: var(--fg); text-decoration: underline; }
+  header h1 { margin: 0 0 4px; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+  header .sub { margin: 0 0 16px; color: var(--fg-muted); font-size: 14px; }
+  header .lede { margin: 0 0 12px; max-width: 64ch; }
+  header .meta { margin: 0; color: var(--fg-muted); font-size: 13px; }
+  section { margin-top: 36px; }
+  section h2 { margin: 0 0 8px; font-size: 17px; font-weight: 600; }
+  section .caveat { margin: 8px 0 0; color: var(--fg-muted); font-size: 13px; max-width: 64ch; }
+  .chart { background: white; border: 1px solid var(--rule); padding: 12px; overflow-x: auto; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 16px;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 12px 16px;
+    align-items: start;
+  }
+  .panel label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-muted); }
+  .panel input[type="datetime-local"] {
+    font: inherit; padding: 6px 8px;
+    border: 1px solid var(--rule); border-radius: 4px; background: white;
+  }
+  .panel button {
+    font: inherit; padding: 7px 14px; align-self: end;
+    border: 1px solid var(--fg); background: var(--fg); color: white;
+    border-radius: 4px; cursor: pointer;
+  }
+  .panel button:hover { background: #000; }
+  .answer { grid-column: 1 / -1; padding: 14px 16px; border-radius: 4px; border-left: 4px solid var(--low); background: white; }
+  .answer.low    { border-left-color: var(--low); }
+  .answer.medium { border-left-color: var(--med); }
+  .answer.high   { border-left-color: var(--high); }
+  .answer .verdict { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .answer .detail  { color: var(--fg); margin-bottom: 6px; }
+  .answer .meta    { color: var(--fg-muted); font-size: 13px; }
+  .panel-caveat { margin-top: 12px; color: var(--fg-muted); font-size: 13px; max-width: 64ch; }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--fg-muted); font-size: 13px; }
+  .legend-inline { display: inline-flex; gap: 16px; align-items: center; font-size: 13px; color: var(--fg-muted); }
+  .legend-inline .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+  .legend-inline .swatch.chess  { background: var(--chess); }
+  .legend-inline .swatch.friend { background: var(--friend); border-radius: 0; transform: rotate(45deg); }
+  #status { color: var(--fg-muted); }
+  .perf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+  .perf-card { background: var(--panel); border: 1px solid var(--rule); padding: 12px; border-radius: 4px; }
+  .perf-card .label { font-size: 12px; color: var(--fg-muted); }
+  .perf-card .value { font-size: 16px; font-weight: 600; margin-top: 4px; }
+  .perf-card .sub   { font-size: 12px; color: var(--fg-muted); margin-top: 4px; }
+  .perf-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  .perf-table th, .perf-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+  .perf-table th { color: var(--fg-muted); font-weight: 500; }
+  .perf-table td.num, .perf-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .perf-table tr.best td { font-weight: 600; }
+  .verdict-line .pAwake { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <nav class="top"><a href="./">← Dashboard</a></nav>
+  <header>
+    <h1>Vökuhringur — details</h1>
+    <p class="sub">Edson's free-running wake pattern</p>
+    <p class="lede">
+      Edson has non-24-hour sleep–wake cycle: his wake time drifts forward most days instead of locking to a 24-hour clock. Each dot below is a moment we know he was awake. Free-running drift shows up as <strong>diagonal trails</strong> on a double-plotted 0–48h time axis.
+    </p>
+    <p class="meta" id="meta">Loading…</p>
+  </header>
+
+  <section>
+    <h2>Observation density</h2>
+    <div class="chart" id="density"><span id="status">Loading…</span></div>
+    <p class="caveat">Observations per month. The Feb–Aug 2025 block dominates; recent months are sparser.</p>
+  </section>
+
+  <section>
+    <h2>Drift raster</h2>
+    <div class="chart" id="raster"></div>
+    <p class="caveat">
+      One row per day. Each observation is plotted at its actual hour and again 24 h later, so a diagonal drift trail stays continuous across midnight. The dashed vertical line marks the day boundary at +24 h.
+      Time axis is UTC = Iceland local time (no DST).
+      Chart shows <span id="raster-range">…</span>; earlier observations exist in the source data but were too sparse to render usefully.
+    </p>
+  </section>
+
+  <section id="perf">
+    <h2>Model performance</h2>
+    <div id="perf-body"><span id="status">Computing…</span></div>
+    <p class="caveat">
+      Calibration: chronological 80 / 20 split. Held-out events become positive labels (awake);
+      synthetic negatives are placed half a fitted period earlier (the antipodal phase, expected
+      to be sleep). Each held-out timestamp is predicted using only training events.
+      Brier score is mean squared error of probability vs label — lower is better.
+    </p>
+  </section>
+
+  <section>
+    <h2>Predict</h2>
+    <div class="panel">
+      <label>When?
+        <input type="datetime-local" id="when" />
+      </label>
+      <button id="go">Predict</button>
+      <div></div>
+      <div class="answer low" id="answer">
+        <div class="verdict">…</div>
+      </div>
+    </div>
+    <p class="panel-caveat">
+      <strong>Caveat.</strong> Predictions reflect <em>when Edson has been observed awake</em>, not direct evidence of his sleep itself. So an "asleep" verdict literally means "the recent wake phase of the cycle is far from this query phase" — not that we have evidence he is asleep. Far from recent data, the model abstains: low confidence is a real answer, not a loading state.
+    </p>
+  </section>
+
+  <footer>
+    <p>
+      Time-of-day axis: UTC = Iceland local (Iceland has no DST).
+      Source observations are static JSON; refresh process and architecture in <code>README.md</code>.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
+import { collapseSessions, fitTau, predict, localDaytime } from "./model.js";
+
+const COLORS = { chess: "#5b8bb0", friend: "#d97757" };
+const SYMBOLS = { chess: "circle", friend: "diamond" };
+
+const data = await fetch("./observations.json").then(r => r.json());
+const obs = data.observations.map(o => ({ ts: new Date(o.ts), source: o.source }));
+const total = obs.length;
+const first = obs[0].ts;
+const last  = obs[obs.length - 1].ts;
+const latestBySource = (() => {
+  const out = {};
+  for (let i = obs.length - 1; i >= 0; i--) {
+    if (!out[obs[i].source]) out[obs[i].source] = obs[i].ts;
+    if (out.chess && out.friend) break;
+  }
+  return out;
+})();
+
+const fmtDate = d => d.toISOString().slice(0, 10);
+const fmtDateTime = d => d.toISOString().slice(0, 16).replace("T", " ") + " UTC";
+
+document.getElementById("meta").innerHTML = `
+  ${total.toLocaleString()} observations
+  · ${fmtDate(first)} → ${fmtDate(last)}
+  · latest: ${fmtDateTime(last)}
+  · generated ${data.generated_at}
+`;
+
+// ---------- density: observations per month, stacked by source ----------
+const density = Plot.plot({
+  width: 900,
+  height: 140,
+  marginLeft: 50,
+  marginBottom: 30,
+  x: { type: "time", label: null, grid: true },
+  y: { label: "obs / month", grid: true },
+  color: { domain: ["chess", "friend"], range: [COLORS.chess, COLORS.friend], legend: false },
+  marks: [
+    Plot.rectY(
+      obs,
+      Plot.binX(
+        { y: "count" },
+        { x: "ts", fill: "source", interval: "month" }
+      )
+    ),
+    Plot.ruleY([0]),
+  ],
+});
+document.getElementById("density").replaceChildren(density);
+
+// ---------- raster: double-plotted dots, date × hour ----------
+function utcDateOnly(d) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+function hourOfDay(d) {
+  return d.getUTCHours() + d.getUTCMinutes() / 60 + d.getUTCSeconds() / 3600;
+}
+
+// double-plot: each observation appears at (its date, hour) AND at (date - 1, hour + 24).
+// That's the standard actogram convention — diagonals stay continuous across midnight.
+const doubled = obs.flatMap(o => {
+  const date = utcDateOnly(o.ts);
+  const hour = hourOfDay(o.ts);
+  const prev = new Date(date.getTime() - 86400000);
+  return [
+    { date, hour, source: o.source, ts: o.ts },
+    { date: prev, hour: hour + 24, source: o.source, ts: o.ts },
+  ];
+});
+
+const today = new Date();
+const rasterStart = new Date(Date.UTC(2025, 0, 1));
+const rasterEnd   = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 14));
+document.getElementById("raster-range").textContent = `${fmtDate(rasterStart)} → ${fmtDate(rasterEnd)}`;
+
+const inRange = doubled.filter(d => d.date >= rasterStart && d.date <= rasterEnd);
+
+const days = Math.round((rasterEnd - rasterStart) / 86400000);
+const rasterHeight = Math.max(700, Math.min(2200, days * 2.8));
+
+const todayDateOnly = utcDateOnly(today);
+
+const raster = Plot.plot({
+  width: 900,
+  height: rasterHeight,
+  marginLeft: 70,
+  marginRight: 20,
+  marginTop: 32,
+  marginBottom: 36,
+  x: {
+    domain: [0, 48],
+    label: "Hour of day (double-plotted, UTC = Iceland local) →",
+    ticks: [0, 6, 12, 18, 24, 30, 36, 42, 48],
+    tickFormat: d => `${(d % 24).toString().padStart(2, "0")}h`,
+    grid: true,
+  },
+  y: {
+    type: "time",
+    reverse: true,
+    label: "Date ↓",
+    domain: [rasterStart, rasterEnd],
+    grid: true,
+  },
+  color: { domain: ["chess", "friend"], range: [COLORS.chess, COLORS.friend], legend: false },
+  symbol: { domain: ["chess", "friend"], range: [SYMBOLS.chess, SYMBOLS.friend] },
+  marks: [
+    Plot.ruleX([24], { stroke: "#888", strokeDasharray: "2 4" }),
+    Plot.ruleY([todayDateOnly], { stroke: "#c44", strokeDasharray: "2 3", strokeOpacity: 0.7 }),
+    Plot.dot(inRange, {
+      x: "hour",
+      y: "date",
+      fill: "source",
+      stroke: "source",
+      symbol: "source",
+      r: 1.9,
+      fillOpacity: 0.7,
+      strokeOpacity: 0.9,
+      tip: true,
+      title: d => d.ts.toISOString().replace("T", " ").slice(0, 19) + " UTC",
+    }),
+  ],
+});
+document.getElementById("raster").replaceChildren(raster);
+
+// ---------- model: fit + live predict ----------
+const events = collapseSessions(obs);
+const nowMs = Date.now();
+const fit = fitTau(events, nowMs);
+const tau = fit.tau;
+
+document.getElementById("meta").innerHTML += `
+  · collapsed events: ${events.length.toLocaleString()}
+  · fitted period: ${tau.toFixed(2)} h (R = ${fit.R.toFixed(2)})
+`;
+
+const whenInput = document.getElementById("when");
+const goBtn     = document.getElementById("go");
+const answerEl  = document.getElementById("answer");
+
+function localDatetimeValue(d) {
+  const pad = n => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+         `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+whenInput.value = localDatetimeValue(new Date());
+
+function renderAnswer(when, pAwake, confidence, debug) {
+  if (Number.isNaN(when?.getTime?.())) {
+    answerEl.className = "answer low";
+    answerEl.innerHTML = `<div class="verdict">Invalid date.</div>`;
+    return;
+  }
+  const ts = `${when.toISOString().replace("T", " ").slice(0, 16)} UTC`;
+  const dbg = debug
+    ? ` · ESS ${debug.ess.toFixed(1)}, R ${debug.R.toFixed(2)}, staleness ${debug.stalenessDays.toFixed(0)} d`
+    : "";
+
+  if (confidence === "low") {
+    answerEl.className = "answer low";
+    answerEl.innerHTML = `
+      <div class="verdict">Don't know.</div>
+      <div class="detail">Nearest evidence is too sparse, too inconsistent, or too far in time to call it. Best guess: pAwake = ${pAwake.toFixed(2)}.</div>
+      <div class="meta">${ts} · low confidence${dbg}</div>
+    `;
+    return;
+  }
+
+  const awake = pAwake > 0.5;
+  const label = awake ? "awake" : "asleep";
+  const verdict = confidence === "high" ? `Likely ${label}.` : `Probably ${label}.`;
+  answerEl.className = `answer ${confidence}`;
+  answerEl.innerHTML = `
+    <div class="verdict">${verdict}</div>
+    <div class="detail verdict-line">pAwake = <span class="pAwake">${pAwake.toFixed(2)}</span> · ${confidence} confidence</div>
+    <div class="meta">${ts}${dbg}</div>
+  `;
+}
+
+function runPredict() {
+  const when = new Date(whenInput.value);
+  const r = predict(events, tau, +when);
+  renderAnswer(when, r.pAwake, r.confidence, r.debug);
+}
+goBtn.addEventListener("click", runPredict);
+whenInput.addEventListener("change", runPredict);
+runPredict();
+
+// ---------- model performance / calibration ----------
+function evalModel() {
+  const sorted = [...events].sort((a, b) => a.t - b.t);
+  const cutoff = Math.floor(sorted.length * 0.8);
+  const train = sorted.slice(0, cutoff);
+  const test  = sorted.slice(cutoff);
+
+  if (test.length < 5) {
+    return { error: "Not enough held-out data to evaluate." };
+  }
+
+  const trainCutoffTime = train[train.length - 1].t;
+  const fit = fitTau(train, trainCutoffTime + 1);
+  const tauTrain = fit.tau;
+  const tauMs = tauTrain * 3600 * 1000;
+
+  const samples = [];
+  for (const e of test) {
+    samples.push({ t: e.t, label: 1 });
+    samples.push({ t: e.t - tauMs / 2, label: 0 });
+  }
+
+  const buckets = { high: [], medium: [], low: [] };
+  let sBrModel = 0, sBrFlat = 0, sBrDay = 0;
+  let hModel = 0, hDay = 0;
+
+  for (const s of samples) {
+    const r = predict(train, tauTrain, s.t);
+    const pModel = r.pAwake;
+    const pDay = localDaytime(s.t);
+
+    sBrModel += (pModel - s.label) ** 2;
+    sBrFlat  += (0.5    - s.label) ** 2;
+    sBrDay   += (pDay   - s.label) ** 2;
+
+    hModel += ((pModel >= 0.5 ? 1 : 0) === s.label) ? 1 : 0;
+    hDay   += ((pDay   >= 0.5 ? 1 : 0) === s.label) ? 1 : 0;
+
+    buckets[r.confidence].push({ p: pModel, label: s.label });
+  }
+
+  const N = samples.length;
+  const summarise = (arr) => {
+    if (!arr.length) return { n: 0 };
+    const n = arr.length;
+    const meanP = arr.reduce((a, x) => a + x.p, 0) / n;
+    const meanLabel = arr.reduce((a, x) => a + x.label, 0) / n;
+    const acc = arr.reduce((a, x) => a + (((x.p >= 0.5 ? 1 : 0) === x.label) ? 1 : 0), 0) / n;
+    const brier = arr.reduce((a, x) => a + (x.p - x.label) ** 2, 0) / n;
+    return { n, meanP, meanLabel, acc, brier };
+  };
+
+  return {
+    tauTrain,
+    nTrain: train.length,
+    nTest: test.length,
+    nSamples: N,
+    brier: { model: sBrModel / N, flat: sBrFlat / N, day: sBrDay / N },
+    accuracy: { model: hModel / N, flat: 0.5, day: hDay / N },
+    buckets: {
+      high: summarise(buckets.high),
+      medium: summarise(buckets.medium),
+      low: summarise(buckets.low),
+    },
+  };
+}
+
+function renderPerf(p) {
+  if (p.error) {
+    document.getElementById("perf-body").textContent = p.error;
+    return;
+  }
+  const f = (x, d = 3) => x.toFixed(d);
+  const briers = { model: p.brier.model, flat: p.brier.flat, day: p.brier.day };
+  const accs   = { model: p.accuracy.model, flat: p.accuracy.flat, day: p.accuracy.day };
+  const minBrier = Math.min(briers.model, briers.flat, briers.day);
+  const maxAcc   = Math.max(accs.model, accs.flat, accs.day);
+  const flag = (key, table) =>
+    (table === "brier" ? briers[key] === minBrier : accs[key] === maxAcc) ? " best" : "";
+  const beatsFlat = briers.model < briers.flat;
+  const beatsDay  = briers.model < briers.day;
+  const bothBeaten = beatsFlat && beatsDay;
+
+  const bucketsHtml = ["high", "medium", "low"].map(c => {
+    const b = p.buckets[c];
+    if (!b.n) return `<tr><td>${c}</td><td colspan="5"><i>no samples</i></td></tr>`;
+    return `<tr>
+      <td>${c}</td>
+      <td class="num">${b.n}</td>
+      <td class="num">${f(b.meanP, 2)}</td>
+      <td class="num">${f(b.meanLabel, 2)}</td>
+      <td class="num">${f(b.acc, 2)}</td>
+      <td class="num">${f(b.brier, 3)}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("perf-body").innerHTML = `
+    <div class="perf-grid">
+      <div class="perf-card">
+        <div class="label">Fitted period (full data)</div>
+        <div class="value">${f(tau, 2)} h</div>
+        <div class="sub">circular concentration R = ${f(fit.R, 2)}</div>
+      </div>
+      <div class="perf-card">
+        <div class="label">Fitted period (training 80%)</div>
+        <div class="value">${f(p.tauTrain, 2)} h</div>
+        <div class="sub">${p.nTrain} train · ${p.nTest} test events</div>
+      </div>
+      <div class="perf-card">
+        <div class="label">Held-out evaluation</div>
+        <div class="value">${p.nSamples} samples</div>
+        <div class="sub">${p.nTest} positive + ${p.nTest} synthetic negative</div>
+      </div>
+      <div class="perf-card">
+        <div class="label">Beats both baselines?</div>
+        <div class="value">${bothBeaten ? "Yes" : "No"}</div>
+        <div class="sub">${beatsFlat ? "✓" : "✗"} flat 50/50 · ${beatsDay ? "✓" : "✗"} local-daytime</div>
+      </div>
+    </div>
+
+    <table class="perf-table">
+      <thead><tr><th>Model</th><th class="num">Brier ↓</th><th class="num">Accuracy ↑</th></tr></thead>
+      <tbody>
+        <tr class="${flag("model", "brier") || flag("model", "acc") ? "best" : ""}">
+          <td>Vökuhringur model</td>
+          <td class="num">${f(p.brier.model)}</td>
+          <td class="num">${f(p.accuracy.model)}</td>
+        </tr>
+        <tr><td>Flat 50/50 baseline</td><td class="num">${f(p.brier.flat)}</td><td class="num">${f(p.accuracy.flat)}</td></tr>
+        <tr><td>Local-daytime (08–22 UTC)</td><td class="num">${f(p.brier.day)}</td><td class="num">${f(p.accuracy.day)}</td></tr>
+      </tbody>
+    </table>
+
+    <table class="perf-table">
+      <thead><tr>
+        <th>Confidence bin</th>
+        <th class="num">n</th>
+        <th class="num">mean p</th>
+        <th class="num">label rate</th>
+        <th class="num">accuracy</th>
+        <th class="num">Brier</th>
+      </tr></thead>
+      <tbody>${bucketsHtml}</tbody>
+    </table>
+  `;
+
+  console.log("[Vökuhringur eval]", {
+    tau: tau, tauTrain: p.tauTrain, brier: p.brier, accuracy: p.accuracy, buckets: p.buckets,
+  });
+}
+
+renderPerf(evalModel());
+</script>
+</body>
+</html>
