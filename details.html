@@ -187,13 +187,12 @@ const density = Plot.plot({
   marginBottom: 30,
   x: { type: "time", label: null, grid: true },
   y: { label: "obs / month", grid: true },
-  color: { domain: ["chess", "friend"], range: [COLORS.chess, COLORS.friend], legend: false },
   marks: [
     Plot.rectY(
       obs,
       Plot.binX(
         { y: "count" },
-        { x: "ts", fill: "source", interval: "month" }
+        { x: "ts", fill: "#5b8bb0", interval: "month" }
       )
     ),
     Plot.ruleY([0]),
@@ -254,20 +253,17 @@ const raster = Plot.plot({
     domain: [rasterStart, rasterEnd],
     grid: true,
   },
-  color: { domain: ["chess", "friend"], range: [COLORS.chess, COLORS.friend], legend: false },
-  symbol: { domain: ["chess", "friend"], range: [SYMBOLS.chess, SYMBOLS.friend] },
   marks: [
     Plot.ruleX([24], { stroke: "#888", strokeDasharray: "2 4" }),
     Plot.ruleY([todayDateOnly], { stroke: "#c44", strokeDasharray: "2 3", strokeOpacity: 0.7 }),
     Plot.dot(inRange, {
       x: "hour",
       y: "date",
-      fill: "source",
-      stroke: "source",
-      symbol: "source",
-      r: 1.9,
-      fillOpacity: 0.7,
-      strokeOpacity: 0.9,
+      fill: "#5b8bb0",
+      stroke: "#5b8bb0",
+      r: 1.6,
+      fillOpacity: 0.55,
+      strokeOpacity: 0.7,
       tip: true,
       title: d => d.ts.toISOString().replace("T", " ").slice(0, 19) + " UTC",
     }),
