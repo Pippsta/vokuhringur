@@ -1,0 +1,62 @@
+name: Refresh observations.json
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC. GitHub may delay scheduled runs by ~30 min under
+    # load — that's fine, the workflow_dispatch fallback below covers any miss.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-observations
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore friend xlsx from observations.json
+        run: python restore_awake_xlsx.py
+
+      - name: Fetch chess.com games
+        env:
+          CHESS_USERNAME: ${{ secrets.CHESS_USERNAME }}
+          CONTACT_EMAIL:  ${{ secrets.CONTACT_EMAIL }}
+        run: python fetch_chess.py
+
+      - name: Fetch lichess games
+        env:
+          LICHESS_USERNAME: ${{ secrets.LICHESS_USERNAME }}
+          CONTACT_EMAIL:    ${{ secrets.CONTACT_EMAIL }}
+        run: python fetch_lichess.py
+
+      - name: Build observations.json
+        run: python convert.py
+
+      - name: Commit and push if observations changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if python should_commit.py; then
+            echo "No substantive changes — skipping commit."
+            exit 0
+          fi
+          git add observations.json
+          git commit -m "data refresh (automated)"
+          git push

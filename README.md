@@ -4,7 +4,29 @@ Static page that visualises and predicts the sleep–wake pattern of `Edson`, wh
 
 Read-only. No backend, no auth. Deployable by git push.
 
-## Refresh (5 min)
+## Automatic refresh
+
+A GitHub Action (`.github/workflows/refresh.yml`) runs **weekly on Monday at 06:00 UTC** and on demand (Actions tab → *Refresh observations.json* → *Run workflow*). It fetches fresh chess.com + lichess endgame timestamps from the public APIs, reconstructs `awake_times.xlsx` on the runner from the friend records already in the committed `observations.json`, re-runs `convert.py`, and commits the new JSON only if the merged observation set or counts have actually changed (the `generated_at` bump alone doesn't trigger a commit).
+
+Friend data lives in two places only: your local `awake_times.xlsx` (gitignored) and inside `observations.json` (records tagged `"source": "friend"`). The runner reconstructs the xlsx from the JSON; the local xlsx never leaves your machine.
+
+Push race: if you push friend data right around the weekly slot, no problem. Either your push wins (the action sees it on checkout), or the action's commit precedes yours and the next run reconciles. There's no path that loses friend data short of a force-push.
+
+### One-time setup
+
+In repo Settings → *Secrets and variables* → *Actions*, add three repository secrets:
+
+- `CHESS_USERNAME` — chess.com username
+- `LICHESS_USERNAME` — lichess username
+- `CONTACT_EMAIL` — `pippsta@users.noreply.github.com` (sent in API User-Agent)
+
+In your GitHub *account* Settings → *Notifications* → *Actions*, set **Send notifications for failed workflows only** so you get an email if a refresh ever breaks.
+
+Trigger one manual run from the Actions tab to confirm the pipeline works before relying on the schedule.
+
+## Manual refresh
+
+Most weeks you won't need this — chess data refreshes itself via the weekly action. Use the manual path only when you've added new friend sightings or want to force an immediate chess refresh.
 
 **Online-chess data (chess.com + lichess):**
 
@@ -44,7 +66,13 @@ Dependencies: `openpyxl` (already required by the upstream export). No other pac
 - `lichess_games.xlsx` — raw lichess export, single column `EndTime (UTC)`. **Gitignored** (local only).
 - `awake_times.xlsx` — manual friend observations, single column `Awake Timestamp`. **Gitignored** (local only).
 - `convert.py` — all three xlsx files → `observations.json`. Drops daily/correspondence chess.com games. Merges chess.com + lichess into a single `chess` source.
-- `refresh.cmd` — Windows double-click wrapper: runs `convert.py`, stages the data files, commits, pushes. Falls back gracefully if git isn't set up yet.
+- `refresh.cmd` — Windows double-click wrapper for manual refreshes: runs `convert.py`, stages `observations.json`, commits, pushes. Falls back gracefully if git isn't set up yet.
+- `fetch_chess.py` — fetches chess.com games from the public API. Run by the GitHub Action; configurable via `CHESS_USERNAME` and `CONTACT_EMAIL` env vars.
+- `fetch_lichess.py` — fetches lichess games from the public API. Run by the GitHub Action; configurable via `LICHESS_USERNAME` and `CONTACT_EMAIL`.
+- `restore_awake_xlsx.py` — reconstructs `awake_times.xlsx` from `observations.json` on the GitHub Action runner. Lets the action regenerate the JSON without ever needing access to the local xlsx.
+- `should_commit.py` — workflow helper. Compares freshly-built `observations.json` to `HEAD`'s version (ignoring `generated_at`); decides whether the action should commit.
+- `requirements.txt` — pinned Python deps (`openpyxl`, `requests`) for the GitHub Action runner.
+- `.github/workflows/refresh.yml` — the weekly scheduled refresh workflow.
 - `observations.json` — bundled data the page reads. Wrapper object with `subject`, `sources`, `generated_at`, `counts`, and `observations: [{ ts, source }]` where `source` is `"chess"` or `"friend"`. Sorted ascending.
 - `model.js` — period-and-phase prediction model (ES module). Public API: `collapseSessions`, `fitTau`, `predict`. Loaded by both pages below.
 - `index.html` — **the dashboard**. Mobile-first, narrow column. Single big verdict card for "now" with confidence colour-band, "last seen" line, a compact 14-day double-plotted mini-raster, a quick predict-anywhere input, and a `Details →` link. The page friends actually open day-to-day.

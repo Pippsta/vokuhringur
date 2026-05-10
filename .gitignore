@@ -1,6 +1,10 @@
 # Local Claude Code settings (per-machine permissions)
 .claude/settings.local.json
 
+# Safety backup of .git made during the history-rewrite (can be removed
+# locally once you're confident the rewrite is good)
+.git.bak/
+
 # Python bytecode cache
 __pycache__/
 *.pyc
