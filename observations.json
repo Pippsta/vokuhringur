@@ -9,15 +9,15 @@
   "counts": {
     "by_source": {
       "chess": 7640,
-      "friend": 70
+      "friend": 84
     },
     "input_rows": {
       "chess_com": 1193,
       "lichess": 6453,
-      "friend": 70
+      "friend": 84
     },
     "excluded_daily_games": 6,
-    "total": 7710
+    "total": 7724
   },
   "observations": [
     {
@@ -30821,6 +30821,10 @@
       "source": "chess"
     },
     {
+      "ts": "2026-05-07T13:21:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-05-07T14:05:26Z",
       "source": "chess"
     },
@@ -30829,20 +30833,68 @@
       "source": "chess"
     },
     {
+      "ts": "2026-05-07T21:23:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-08T03:40:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-05-08T04:14:36Z",
       "source": "chess"
+    },
+    {
+      "ts": "2026-05-08T13:46:00Z",
+      "source": "friend"
     },
     {
       "ts": "2026-05-08T15:36:18Z",
       "source": "chess"
     },
     {
+      "ts": "2026-05-08T15:46:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-05-08T17:57:13Z",
       "source": "chess"
     },
     {
+      "ts": "2026-05-08T18:02:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-08T22:25:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-09T07:00:00Z",
+      "source": "friend"
+    },
+    {
       "ts": "2026-05-09T17:03:53Z",
       "source": "chess"
+    },
+    {
+      "ts": "2026-05-09T17:33:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-09T19:28:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-10T03:10:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-10T04:54:00Z",
+      "source": "friend"
+    },
+    {
+      "ts": "2026-05-10T17:43:00Z",
+      "source": "friend"
     },
     {
       "ts": "2026-05-10T18:10:47Z",
@@ -30851,6 +30903,10 @@
     {
       "ts": "2026-05-10T18:18:44Z",
       "source": "chess"
+    },
+    {
+      "ts": "2026-05-10T18:19:00Z",
+      "source": "friend"
     },
     {
       "ts": "2026-05-10T18:29:22Z",
