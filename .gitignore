@@ -12,3 +12,8 @@ desktop.ini
 
 # Excel/Word lock files
 ~$*
+
+# Data sources — kept local-only so the source platform identifiers
+# never leave the dev machine. Only observations.json (the build output)
+# gets committed.
+*.xlsx

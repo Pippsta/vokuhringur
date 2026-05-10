@@ -27,7 +27,8 @@ if errorlevel 1 (
   exit /b 0
 )
 
-git add observations.json friend_awake_times.xlsx eidurm_games.xlsx 2>nul
+REM xlsx files are gitignored — only observations.json and code go to GitHub.
+git add observations.json 2>nul
 git diff --cached --quiet
 if not errorlevel 1 (
   echo No changes to commit. Already up to date.

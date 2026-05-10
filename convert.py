@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
 """
-convert.py — chess + friend xlsx -> observations.json
+convert.py — chess + lichess + friend xlsx -> observations.json
 
-Reads two awake-evidence sources and emits the merged JSON the static page
+Reads three awake-evidence sources and emits the merged JSON the static page
 consumes:
 
-  - eidurm_games.xlsx       (chess.com endgame timestamps, machine-recorded)
-  - friend_awake_times.xlsx (friend observations, manual, minute precision)
+  - chess_games.xlsx     (chess.com endgame timestamps, machine-recorded)
+  - lichess_games.xlsx   (lichess endgame timestamps, machine-recorded)
+  - awake_times.xlsx     (friend observations, manual, minute precision)
 
-Drops daily/correspondence chess games — endpoint is too weak as awake-evidence
-(the final move can be hours or days after the player was actually awake).
+These xlsx files are local-only (gitignored) so the source-platform identifiers
+never leak to the public repo. Only the merged, anonymized observations.json
+gets committed.
+
+Both online-chess sources are tagged as `source: "chess"` in the output —
+they're behaviourally indistinguishable for the model (session-clustered,
+machine-recorded online play). Counts are kept separate per platform under
+`counts.input_rows` for transparency.
+
+Drops daily/correspondence chess.com games — endpoint is too weak as
+awake-evidence (the final move can be hours or days after the player was
+actually awake). Lichess has no time-class column to filter on, so any
+correspondence games on lichess are included; for typical players this is
+a small minority and not worth special-casing.
 
 Friend timestamps have no tzinfo; treated as UTC because Iceland is UTC
 year-round and observations are recorded in Iceland local time.
@@ -25,8 +38,9 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 HERE = Path(__file__).parent
-CHESS_INPUT = HERE / "eidurm_games.xlsx"
-FRIEND_INPUT = HERE / "friend_awake_times.xlsx"
+CHESS_INPUT = HERE / "chess_games.xlsx"
+LICHESS_INPUT = HERE / "lichess_games.xlsx"
+FRIEND_INPUT = HERE / "awake_times.xlsx"
 OUTPUT = HERE / "observations.json"
 SUBJECT = "Edson"
 EXCLUDED_TIME_CLASSES = {"daily"}
@@ -37,7 +51,7 @@ def _iso_utc(dt: datetime) -> str:
 
 
 def read_chess(path: Path) -> tuple[list[dict], int, int]:
-    """Return (records, input_rows, excluded_daily_games)."""
+    """Return (records, input_rows, excluded_daily_games). chess.com format."""
     wb = load_workbook(path, read_only=True, data_only=True)
     ws = wb["Games"]
     rows = ws.iter_rows(values_only=True)
@@ -61,6 +75,24 @@ def read_chess(path: Path) -> tuple[list[dict], int, int]:
     return records, input_rows, excluded_daily
 
 
+def read_lichess(path: Path) -> tuple[list[dict], int]:
+    """Return (records, input_rows). Single-column lichess export."""
+    wb = load_workbook(path, read_only=True, data_only=True)
+    ws = wb.active
+    rows = ws.iter_rows(values_only=True)
+    next(rows)  # discard header
+
+    records: list[dict] = []
+    input_rows = 0
+    for row in rows:
+        input_rows += 1
+        ts = row[0]
+        if ts is None:
+            continue
+        records.append({"ts": _iso_utc(ts), "source": "chess"})
+    return records, input_rows
+
+
 def read_friend(path: Path) -> tuple[list[dict], int]:
     """Return (records, input_rows)."""
     wb = load_workbook(path, read_only=True, data_only=True)
@@ -80,21 +112,23 @@ def read_friend(path: Path) -> tuple[list[dict], int]:
 
 
 def main() -> int:
-    missing = [p.name for p in (CHESS_INPUT, FRIEND_INPUT) if not p.exists()]
+    missing = [p.name for p in (CHESS_INPUT, LICHESS_INPUT, FRIEND_INPUT) if not p.exists()]
     if missing:
         print(f"ERROR: missing input file(s): {', '.join(missing)}", file=sys.stderr)
         return 1
 
     chess_recs, chess_in, excluded_daily = read_chess(CHESS_INPUT)
+    lichess_recs, lichess_in = read_lichess(LICHESS_INPUT)
     friend_recs, friend_in = read_friend(FRIEND_INPUT)
 
-    merged = chess_recs + friend_recs
+    online_chess_recs = chess_recs + lichess_recs
+    merged = online_chess_recs + friend_recs
     merged.sort(key=lambda r: r["ts"])
 
     payload = {
         "subject": SUBJECT,
         "sources": {
-            "chess": "chess.com endgame timestamps (machine-recorded, session-clustered, second-precision)",
+            "chess":  "online chess endgame timestamps (chess.com + lichess merged)",
             "friend": "friend observations (manual, minute-precision, point observations)",
         },
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -103,8 +137,15 @@ def main() -> int:
             "Friend timestamps are entered in Iceland local time and treated as UTC."
         ),
         "counts": {
-            "by_source": {"chess": len(chess_recs), "friend": len(friend_recs)},
-            "input_rows": {"chess": chess_in, "friend": friend_in},
+            "by_source": {
+                "chess":  len(online_chess_recs),
+                "friend": len(friend_recs),
+            },
+            "input_rows": {
+                "chess_com": chess_in,
+                "lichess":   lichess_in,
+                "friend":    friend_in,
+            },
             "excluded_daily_games": excluded_daily,
             "total": len(merged),
         },
@@ -117,8 +158,10 @@ def main() -> int:
     )
     print(
         f"Wrote {OUTPUT.name}: "
-        f"chess={len(chess_recs)} (excluded_daily={excluded_daily}), "
-        f"friend={len(friend_recs)}, total={len(merged)}"
+        f"chess.com={len(chess_recs)} (excluded_daily={excluded_daily}), "
+        f"lichess={len(lichess_recs)}, "
+        f"friend={len(friend_recs)}, "
+        f"total={len(merged)}"
     )
     return 0
 

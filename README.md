@@ -6,15 +6,17 @@ Read-only. No backend, no auth. Deployable by git push.
 
 ## Refresh (5 min)
 
-**Chess data:**
+**Online-chess data (chess.com + lichess):**
 
-1. Re-run the chess.com export script to get a fresh `eidurm_games.xlsx`.
-   Recipe: [`../../reference/chess-com-export-recipe.md`](../../reference/chess-com-export-recipe.md). The script writes the xlsx to the `Claude/` root.
-2. Copy / replace the xlsx into this folder (`projects/Vokuhringur/eidurm_games.xlsx`).
+1. Re-run the platform's export script to get a fresh xlsx.
+   chess.com recipe: [`../../reference/chess-com-export-recipe.md`](../../reference/chess-com-export-recipe.md). The script writes the xlsx to the `Claude/` root.
+2. Copy / replace the xlsx into this folder (`projects/Vokuhringur/chess_games.xlsx` for chess.com, `projects/Vokuhringur/lichess_games.xlsx` for lichess).
+
+Endpoints from both platforms are merged into a single `chess` source for the model and chart — they're behaviourally identical (online play, session-clustered, machine-recorded).
 
 **Friend data:**
 
-1. Open `friend_awake_times.xlsx`, append new rows in column A (`Awake Timestamp`), save.
+1. Open `awake_times.xlsx`, append new rows in column A (`Awake Timestamp`), save.
    Times are entered in Iceland local time (= UTC, since Iceland has no DST).
 
 **Then, regardless of which source changed: double-click `refresh.cmd`.**
@@ -25,20 +27,23 @@ If you'd rather do it by hand:
 
 ```
 python convert.py
-git add observations.json friend_awake_times.xlsx eidurm_games.xlsx
+git add observations.json
 git commit -m "data refresh"
 git push
 ```
 
-Tip: the xlsx files are in OneDrive, so editing `friend_awake_times.xlsx` from the Excel app on your phone or web Excel is enough — OneDrive syncs the change to your dev machine, and `refresh.cmd` does the rest.
+The xlsx files are gitignored — they live only on your local machine and OneDrive, never on GitHub. Only the anonymized `observations.json` (timestamps, no platform identifiers) gets pushed.
+
+Tip: the xlsx files are in OneDrive, so editing `awake_times.xlsx` from the Excel app on your phone or web Excel is enough — OneDrive syncs the change to your dev machine, and `refresh.cmd` does the rest.
 
 Dependencies: `openpyxl` (already required by the upstream export). No other packages.
 
 ## Files
 
-- `eidurm_games.xlsx` — raw chess.com export.
-- `friend_awake_times.xlsx` — manual friend observations, single column `Awake Timestamp`.
-- `convert.py` — both xlsx files → `observations.json`. Drops daily/correspondence chess games.
+- `chess_games.xlsx` — raw chess.com export. **Gitignored** (local only).
+- `lichess_games.xlsx` — raw lichess export, single column `EndTime (UTC)`. **Gitignored** (local only).
+- `awake_times.xlsx` — manual friend observations, single column `Awake Timestamp`. **Gitignored** (local only).
+- `convert.py` — all three xlsx files → `observations.json`. Drops daily/correspondence chess.com games. Merges chess.com + lichess into a single `chess` source.
 - `refresh.cmd` — Windows double-click wrapper: runs `convert.py`, stages the data files, commits, pushes. Falls back gracefully if git isn't set up yet.
 - `observations.json` — bundled data the page reads. Wrapper object with `subject`, `sources`, `generated_at`, `counts`, and `observations: [{ ts, source }]` where `source` is `"chess"` or `"friend"`. Sorted ascending.
 - `model.js` — period-and-phase prediction model (ES module). Public API: `collapseSessions`, `fitTau`, `predict`. Loaded by both pages below.
