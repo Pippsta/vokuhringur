@@ -45,7 +45,17 @@ Endpoints from both platforms are merged into a single `chess` source for the mo
 
 It runs `convert.py` to regenerate `observations.json`, stages the data files, and commits + pushes. If the project isn't a git repo yet, it'll just regenerate the JSON locally and tell you to set up git when you're ready.
 
-If you'd rather do it by hand:
+If you'd rather do it by hand for the friend-only flow:
+
+```
+git pull --rebase
+python update_friend_in_json.py
+git add observations.json
+git commit -m "data refresh"
+git push
+```
+
+For a **full rebuild** from local xlsx files (rare — only if you just re-exported chess.com or lichess data locally and want it published immediately rather than waiting for the next Monday action):
 
 ```
 python convert.py
@@ -53,6 +63,8 @@ git add observations.json
 git commit -m "data refresh"
 git push
 ```
+
+⚠ This rebuilds chess data from your local xlsx files, which may be older than what the GitHub Action has already fetched. If so, the action will fix it on its next Monday run. Use the friend-only flow above if you only added friend rows.
 
 The xlsx files are gitignored — they live only on your local machine and OneDrive, never on GitHub. Only the anonymized `observations.json` (timestamps, no platform identifiers) gets pushed.
 
@@ -65,8 +77,9 @@ Dependencies: `openpyxl` (already required by the upstream export). No other pac
 - `chess_games.xlsx` — raw chess.com export. **Gitignored** (local only).
 - `lichess_games.xlsx` — raw lichess export, single column `EndTime (UTC)`. **Gitignored** (local only).
 - `awake_times.xlsx` — manual friend observations, single column `Awake Timestamp`. **Gitignored** (local only).
-- `convert.py` — all three xlsx files → `observations.json`. Drops daily/correspondence chess.com games. Merges chess.com + lichess into a single `chess` source.
-- `refresh.cmd` — Windows double-click wrapper for manual refreshes: runs `convert.py`, stages `observations.json`, commits, pushes. Falls back gracefully if git isn't set up yet.
+- `convert.py` — all three xlsx files → `observations.json`. Drops daily/correspondence chess.com games. Merges chess.com + lichess into a single `chess` source. Used by the GitHub Action; locally invoke only for a full rebuild from local xlsx files.
+- `update_friend_in_json.py` — friend-only update path. Reads the current `observations.json` (preserves all `chess` records — those are owned by the GitHub Action), replaces `friend` records with whatever's in `awake_times.xlsx`. Run by `refresh.cmd`.
+- `refresh.cmd` — Windows double-click wrapper for manual refreshes. Pulls the latest from GitHub, runs `update_friend_in_json.py`, and commits + pushes only if friend data substantively changed. Will not regress chess data because it never touches it.
 - `fetch_chess.py` — fetches chess.com games from the public API. Run by the GitHub Action; configurable via `CHESS_USERNAME` and `CONTACT_EMAIL` env vars.
 - `fetch_lichess.py` — fetches lichess games from the public API. Run by the GitHub Action; configurable via `LICHESS_USERNAME` and `CONTACT_EMAIL`.
 - `restore_awake_xlsx.py` — reconstructs `awake_times.xlsx` from `observations.json` on the GitHub Action runner. Lets the action regenerate the JSON without ever needing access to the local xlsx.
