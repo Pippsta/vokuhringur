@@ -14,6 +14,11 @@ concurrency:
   group: refresh-observations
   cancel-in-progress: false
 
+# Opt into Node.js 24 now so we're not affected by the Node.js 20
+# deprecation that takes effect June 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
