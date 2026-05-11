@@ -278,7 +278,6 @@ const raster14 = Plot.plot({
   },
   marks: [
     Plot.ruleX([24], { stroke: "#bbb", strokeDasharray: "2 4" }),
-    Plot.ruleY([today], { stroke: "#c44", strokeDasharray: "2 3", strokeOpacity: 0.6 }),
     Plot.dot(doubled, {
       x: "hour",
       y: "date",
@@ -287,6 +286,23 @@ const raster14 = Plot.plot({
       r: 2.4,
       fillOpacity: 0.7,
       strokeOpacity: 0.85,
+    }),
+    // today line + label drawn AFTER dots so they sit on top of any overlapping data.
+    Plot.ruleY([today], {
+      stroke: "#c44",
+      strokeDasharray: "4 3",
+      strokeWidth: 1.5,
+      strokeOpacity: 1,
+    }),
+    Plot.text([{ x: 47.5, y: today, label: "← today" }], {
+      x: "x",
+      y: "y",
+      text: "label",
+      fill: "#c44",
+      textAnchor: "end",
+      fontSize: 11,
+      fontWeight: 600,
+      dy: -4,
     }),
   ],
 });
