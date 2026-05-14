@@ -6,11 +6,11 @@ Read-only. No backend, no auth. Deployable by git push.
 
 ## Automatic refresh
 
-A GitHub Action (`.github/workflows/refresh.yml`) runs **weekly on Monday at 06:00 UTC** and on demand (Actions tab → *Refresh observations.json* → *Run workflow*). It fetches fresh chess.com + lichess endgame timestamps from the public APIs, reconstructs `awake_times.xlsx` on the runner from the friend records already in the committed `observations.json`, re-runs `convert.py`, and commits the new JSON only if the merged observation set or counts have actually changed (the `generated_at` bump alone doesn't trigger a commit).
+A GitHub Action (`.github/workflows/refresh.yml`) runs **daily at 06:00 UTC** and on demand (Actions tab → *Refresh observations.json* → *Run workflow*). It fetches fresh chess.com + lichess endgame timestamps from the public APIs, reconstructs `awake_times.xlsx` on the runner from the friend records already in the committed `observations.json`, re-runs `convert.py`, and commits the new JSON only if the merged observation set or counts have actually changed (the `generated_at` bump alone doesn't trigger a commit).
 
 Friend data lives in two places only: your local `awake_times.xlsx` (gitignored) and inside `observations.json` (records tagged `"source": "friend"`). The runner reconstructs the xlsx from the JSON; the local xlsx never leaves your machine.
 
-Push race: if you push friend data right around the weekly slot, no problem. Either your push wins (the action sees it on checkout), or the action's commit precedes yours and the next run reconciles. There's no path that loses friend data short of a force-push.
+Push race: if you push friend data right around the daily slot, no problem. Either your push wins (the action sees it on checkout), or the action's commit precedes yours and the next run reconciles. There's no path that loses friend data short of a force-push.
 
 ### One-time setup
 
@@ -26,7 +26,7 @@ Trigger one manual run from the Actions tab to confirm the pipeline works before
 
 ## Manual refresh
 
-Most weeks you won't need this — chess data refreshes itself via the weekly action. Use the manual path only when you've added new friend sightings or want to force an immediate chess refresh.
+Most days you won't need this — chess data refreshes itself via the daily action. Use the manual path only when you've added new friend sightings or want to force an immediate chess refresh.
 
 **Online-chess data (chess.com + lichess):**
 
@@ -55,7 +55,7 @@ git commit -m "data refresh"
 git push
 ```
 
-For a **full rebuild** from local xlsx files (rare — only if you just re-exported chess.com or lichess data locally and want it published immediately rather than waiting for the next Monday action):
+For a **full rebuild** from local xlsx files (rare — only if you just re-exported chess.com or lichess data locally and want it published immediately rather than waiting for the next daily action):
 
 ```
 python convert.py
@@ -64,7 +64,7 @@ git commit -m "data refresh"
 git push
 ```
 
-⚠ This rebuilds chess data from your local xlsx files, which may be older than what the GitHub Action has already fetched. If so, the action will fix it on its next Monday run. Use the friend-only flow above if you only added friend rows.
+⚠ This rebuilds chess data from your local xlsx files, which may be older than what the GitHub Action has already fetched. If so, the action will fix it on its next daily run. Use the friend-only flow above if you only added friend rows.
 
 The xlsx files are gitignored — they live only on your local machine and OneDrive, never on GitHub. Only the anonymized `observations.json` (timestamps, no platform identifiers) gets pushed.
 
@@ -85,7 +85,7 @@ Dependencies: `openpyxl` (already required by the upstream export). No other pac
 - `restore_awake_xlsx.py` — reconstructs `awake_times.xlsx` from `observations.json` on the GitHub Action runner. Lets the action regenerate the JSON without ever needing access to the local xlsx.
 - `should_commit.py` — workflow helper. Compares freshly-built `observations.json` to `HEAD`'s version (ignoring `generated_at`); decides whether the action should commit.
 - `requirements.txt` — pinned Python deps (`openpyxl`, `requests`) for the GitHub Action runner.
-- `.github/workflows/refresh.yml` — the weekly scheduled refresh workflow.
+- `.github/workflows/refresh.yml` — the daily scheduled refresh workflow.
 - `observations.json` — bundled data the page reads. Wrapper object with `subject`, `sources`, `generated_at`, `counts`, and `observations: [{ ts, source }]` where `source` is `"chess"` or `"friend"`. Sorted ascending.
 - `model.js` — period-and-phase prediction model (ES module). Public API: `collapseSessions`, `fitTau`, `predict`. Loaded by both pages below.
 - `index.html` — **the dashboard**. Mobile-first, narrow column. Single big verdict card for "now" with confidence colour-band, "last seen" line, a compact 14-day double-plotted mini-raster, a quick predict-anywhere input, and a `Details →` link. The page friends actually open day-to-day.

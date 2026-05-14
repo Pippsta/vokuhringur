@@ -2,9 +2,9 @@ name: Refresh observations.json
 
 on:
   schedule:
-    # Mondays at 06:00 UTC. GitHub may delay scheduled runs by ~30 min under
+    # Daily at 06:00 UTC. GitHub may delay scheduled runs by ~30 min under
     # load — that's fine, the workflow_dispatch fallback below covers any miss.
-    - cron: "0 6 * * 1"
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
