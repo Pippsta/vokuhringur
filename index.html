@@ -287,22 +287,12 @@ const raster14 = Plot.plot({
       fillOpacity: 0.7,
       strokeOpacity: 0.85,
     }),
-    // today line + label drawn AFTER dots so they sit on top of any overlapping data.
+    // today line drawn AFTER dots so it sits on top of any overlapping data.
     Plot.ruleY([today], {
       stroke: "#c44",
       strokeDasharray: "4 3",
       strokeWidth: 1.5,
       strokeOpacity: 1,
-    }),
-    Plot.text([{ x: 47.5, y: today, label: "← today" }], {
-      x: "x",
-      y: "y",
-      text: "label",
-      fill: "#c44",
-      textAnchor: "end",
-      fontSize: 11,
-      fontWeight: 600,
-      dy: -4,
     }),
   ],
 });
