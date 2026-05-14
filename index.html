@@ -165,7 +165,7 @@
   </div>
 
   <div class="mini">
-    <div class="label">Last 14 days · double-plotted 0–48 h</div>
+    <div class="label">Last 14 days · 0–24 h</div>
     <div id="raster14"></div>
   </div>
 
@@ -235,7 +235,7 @@ document.getElementById("seen").innerHTML = `
   <div class="value">${humanAgo(nowMs - +last.ts)} <span class="src">· ${lastTs}</span></div>
 `;
 
-// ---------- mini raster: last 14 days, double-plotted ----------
+// ---------- mini raster: last 14 days, single-plotted 0-24 h ----------
 function utcDateOnly(d) { return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); }
 function hourOfDay(d)  { return d.getUTCHours() + d.getUTCMinutes()/60 + d.getUTCSeconds()/3600; }
 
@@ -243,15 +243,9 @@ const today = utcDateOnly(new Date());
 const start = new Date(today.getTime() - 14 * 86400000);
 const end   = new Date(today.getTime() +  1 * 86400000);
 
-const doubled = obs.flatMap(o => {
-  const date = utcDateOnly(o.ts);
-  const hour = hourOfDay(o.ts);
-  const prev = new Date(date.getTime() - 86400000);
-  return [
-    { date, hour, source: o.source },
-    { date: prev, hour: hour + 24, source: o.source },
-  ];
-}).filter(d => d.date >= start && d.date <= end);
+const points = obs
+  .map(o => ({ date: utcDateOnly(o.ts), hour: hourOfDay(o.ts), source: o.source }))
+  .filter(d => d.date >= start && d.date <= end);
 
 const raster14 = Plot.plot({
   width: 440,
@@ -261,9 +255,9 @@ const raster14 = Plot.plot({
   marginTop: 8,
   marginBottom: 22,
   x: {
-    domain: [0, 48],
-    ticks: [0, 12, 24, 36, 48],
-    tickFormat: d => `${(d % 24).toString().padStart(2, "0")}h`,
+    domain: [0, 24],
+    ticks: [0, 6, 12, 18, 24],
+    tickFormat: d => `${d.toString().padStart(2, "0")}h`,
     label: null,
     grid: true,
   },
@@ -277,8 +271,7 @@ const raster14 = Plot.plot({
     grid: true,
   },
   marks: [
-    Plot.ruleX([24], { stroke: "#bbb", strokeDasharray: "2 4" }),
-    Plot.dot(doubled, {
+    Plot.dot(points, {
       x: "hour",
       y: "date",
       fill: "#5b8bb0",
