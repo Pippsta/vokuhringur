@@ -239,6 +239,25 @@ document.getElementById("seen").innerHTML = `
 function utcDateOnly(d) { return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); }
 function hourOfDay(d)  { return d.getUTCHours() + d.getUTCMinutes()/60 + d.getUTCSeconds()/3600; }
 
+// Recency-weighted circular mean of hour-of-day for events near a given date.
+// Used to position the faint "likely asleep" band on each row of the raster.
+function wakeHourAt(events, dateMs, recencyDays = 14) {
+  const TAU_RECENCY = recencyDays * 86400000;
+  let sx = 0, sy = 0, sw = 0;
+  for (const e of events) {
+    const w = Math.exp(-Math.abs(e.t - dateMs) / TAU_RECENCY);
+    if (w < 0.01) continue;
+    const hour = (((e.t % 86400000) + 86400000) % 86400000) / 3600000;
+    const angle = (hour / 24) * 2 * Math.PI;
+    sx += w * Math.cos(angle);
+    sy += w * Math.sin(angle);
+    sw += w;
+  }
+  if (sw === 0) return null;
+  let mean = Math.atan2(sy, sx) / (2 * Math.PI) * 24;
+  return mean < 0 ? mean + 24 : mean;
+}
+
 const today = utcDateOnly(new Date());
 const start = new Date(today.getTime() - 14 * 86400000);
 const end   = new Date(today.getTime() +  1 * 86400000);
@@ -246,6 +265,28 @@ const end   = new Date(today.getTime() +  1 * 86400000);
 const points = obs
   .map(o => ({ date: utcDateOnly(o.ts), hour: hourOfDay(o.ts), source: o.source }))
   .filter(d => d.date >= start && d.date <= end);
+
+// For each row (day) in the chart, infer the wake-phase centroid and shade
+// the antipodal ~8 h as a faint "likely asleep" band. Bands drift naturally
+// as the recency-weighted wake hour drifts day-to-day.
+const asleepBands = [];
+for (let dayMs = +start; dayMs <= +end; dayMs += 86400000) {
+  // Sample the wake centroid at midday of the row, so the recency window is
+  // centred on the row itself.
+  const wakeHour = wakeHourAt(events, dayMs + 12 * 3600000);
+  if (wakeHour == null) continue;
+  const asleepStart = (wakeHour + 8) % 24;
+  const asleepEnd   = (wakeHour + 16) % 24;
+  const dateStart = new Date(dayMs);
+  const dateEnd   = new Date(dayMs + 86400000);
+  if (asleepEnd < asleepStart) {
+    // Crosses midnight: split into two rects.
+    asleepBands.push({ x1: asleepStart, x2: 24, dateStart, dateEnd });
+    asleepBands.push({ x1: 0, x2: asleepEnd, dateStart, dateEnd });
+  } else {
+    asleepBands.push({ x1: asleepStart, x2: asleepEnd, dateStart, dateEnd });
+  }
+}
 
 const raster14 = Plot.plot({
   width: 440,
@@ -271,6 +312,16 @@ const raster14 = Plot.plot({
     grid: true,
   },
   marks: [
+    // Faint "likely asleep" bands drawn FIRST so dots and rules sit on top.
+    Plot.rect(asleepBands, {
+      x1: "x1",
+      x2: "x2",
+      y1: "dateStart",
+      y2: "dateEnd",
+      fill: "#3c4666",
+      fillOpacity: 0.08,
+      stroke: null,
+    }),
     Plot.dot(points, {
       x: "hour",
       y: "date",
