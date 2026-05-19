@@ -1,0 +1,43 @@
+name: Register awake observation
+
+on:
+  repository_dispatch:
+    types: [register_awake]
+
+permissions:
+  contents: write
+
+concurrency:
+  # Same group as the daily refresh so the two never push concurrently.
+  group: refresh-observations
+  cancel-in-progress: false
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Append friend observation
+        env:
+          REGISTER_TS: ${{ github.event.client_payload.ts }}
+        run: python append_friend_observation.py
+
+      - name: Commit and push if observations changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if python should_commit.py; then
+            echo "No substantive changes (duplicate ts?) — skipping commit."
+            exit 0
+          fi
+          git add observations.json
+          git commit -m "data refresh (register-awake)"
+          git push

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<title>Vökuhringur · Register awake</title>
+<style>
+  :root {
+    --fg: #1c1c1e;
+    --fg-muted: #6b6b70;
+    --bg: #fbfaf7;
+    --panel: #f1efe9;
+    --rule: #d9d6cf;
+    --ok: #2f7d3a;
+    --bad: #b3261e;
+    --primary: #2f7d3a;
+    --primary-press: #246129;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+  header { margin-bottom: 16px; }
+  h1 { margin: 0 0 2px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { margin: 0; color: var(--fg-muted); font-size: 13px; }
+
+  .panel {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .panel .label { font-size: 12px; color: var(--fg-muted); margin-bottom: 8px; }
+
+  textarea {
+    font: 13px/1.4 ui-monospace, "SF Mono", Consolas, monospace;
+    width: 100%;
+    min-height: 64px;
+    padding: 8px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--bg);
+    resize: vertical;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 1px solid var(--rule);
+    background: white;
+    padding: 8px 14px;
+    border-radius: 4px;
+    color: var(--fg);
+  }
+  button.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 16px;
+    width: 100%;
+    border-radius: 8px;
+  }
+  button.primary:active:not(:disabled) { background: var(--primary-press); border-color: var(--primary-press); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  .status {
+    margin-top: 12px;
+    font-size: 14px;
+    min-height: 1.4em;
+    font-variant-numeric: tabular-nums;
+  }
+  .status.ok  { color: var(--ok); }
+  .status.bad { color: var(--bad); white-space: pre-wrap; word-break: break-word; }
+
+  .small {
+    font-size: 12px;
+    color: var(--fg-muted);
+    margin-top: 12px;
+  }
+  .small a { color: var(--fg-muted); }
+
+  footer {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--fg-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  footer a { color: var(--fg); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Register awake</h1>
+    <p class="sub">One tap = one friend observation.</p>
+  </header>
+
+  <div id="setup" class="panel hidden">
+    <div class="label">Paste GitHub fine-grained PAT (Contents · Read &amp; Write on this repo only)</div>
+    <textarea id="pat" placeholder="github_pat_…" autocomplete="off" spellcheck="false"></textarea>
+    <div style="margin-top:10px;">
+      <button id="saveTok">Save token</button>
+    </div>
+    <div class="small">Stored only in this browser, on this site. Never sent anywhere except the GitHub API.</div>
+  </div>
+
+  <div id="action" class="panel hidden">
+    <button id="register" class="primary">✓ Edson is awake</button>
+    <div id="status" class="status"></div>
+    <div class="small"><a href="#" id="forget">Forget token</a></div>
+  </div>
+
+  <footer>
+    <a href="./index.html">← Dashboard</a>
+    <span id="now">—</span>
+  </footer>
+</main>
+
+<script>
+const OWNER = "Pippsta";
+const REPO  = "vokuhringur";
+const KEY   = "vokuhringur_pat";
+
+const setup    = document.getElementById("setup");
+const action   = document.getElementById("action");
+const patField = document.getElementById("pat");
+const saveBtn  = document.getElementById("saveTok");
+const regBtn   = document.getElementById("register");
+const status   = document.getElementById("status");
+const forget   = document.getElementById("forget");
+const nowSpan  = document.getElementById("now");
+
+function refreshNow() {
+  nowSpan.textContent = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
+}
+refreshNow();
+setInterval(refreshNow, 30000);
+
+function render() {
+  const has = !!localStorage.getItem(KEY);
+  setup.classList.toggle("hidden", has);
+  action.classList.toggle("hidden", !has);
+  status.textContent = "";
+  status.className = "status";
+}
+render();
+
+saveBtn.addEventListener("click", () => {
+  const v = patField.value.trim();
+  if (!v) return;
+  localStorage.setItem(KEY, v);
+  patField.value = "";
+  render();
+});
+
+forget.addEventListener("click", (e) => {
+  e.preventDefault();
+  localStorage.removeItem(KEY);
+  render();
+});
+
+regBtn.addEventListener("click", async () => {
+  const pat = localStorage.getItem(KEY);
+  if (!pat) { render(); return; }
+  const ts = new Date().toISOString();
+  regBtn.disabled = true;
+  status.className = "status";
+  status.textContent = "Registering…";
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `Bearer ${pat}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: JSON.stringify({
+          event_type: "register_awake",
+          client_payload: { ts },
+        }),
+      }
+    );
+    if (!r.ok) {
+      const body = await r.text();
+      throw new Error(`${r.status} ${r.statusText}\n${body}`);
+    }
+    status.className = "status ok";
+    status.textContent = `Logged at ${ts.replace("T", " ").slice(0, 16)} UTC. Redirecting…`;
+    setTimeout(() => { window.location.href = "./index.html"; }, 3000);
+  } catch (err) {
+    status.className = "status bad";
+    status.textContent = String(err.message || err);
+    regBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
