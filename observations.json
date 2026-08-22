@@ -4,20 +4,20 @@
     "chess": "online chess endgame timestamps (chess.com + lichess merged)",
     "friend": "friend observations (manual, minute-precision, point observations)"
   },
-  "generated_at": "2026-08-18T06:55:48Z",
+  "generated_at": "2026-08-22T06:52:09Z",
   "timezone_note": "Iceland is UTC year-round (no DST); ts is UTC and equals local time. Friend timestamps are entered in Iceland local time and treated as UTC.",
   "counts": {
     "by_source": {
-      "chess": 7896,
+      "chess": 7918,
       "friend": 103
     },
     "input_rows": {
       "chess_com": 1193,
-      "lichess": 6709,
+      "lichess": 6731,
       "friend": 103
     },
     "excluded_daily_games": 6,
-    "total": 7999
+    "total": 8021
   },
   "observations": [
     {
@@ -32014,6 +32014,94 @@
     },
     {
       "ts": "2026-08-17T22:09:00Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-19T01:24:58Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-19T10:29:34Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-19T12:30:16Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-19T12:37:44Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-19T13:18:40Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T02:18:29Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T03:15:38Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T08:30:01Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T08:52:00Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T09:21:29Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T09:43:32Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T11:59:31Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T12:22:22Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T12:33:38Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T12:47:34Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-20T12:56:53Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T08:04:55Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T08:09:54Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T09:19:25Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T13:06:40Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T16:22:44Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-21T16:32:48Z",
       "source": "chess"
     }
   ]
