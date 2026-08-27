@@ -4,20 +4,20 @@
     "chess": "online chess endgame timestamps (chess.com + lichess merged)",
     "friend": "friend observations (manual, minute-precision, point observations)"
   },
-  "generated_at": "2026-08-23T06:53:22Z",
+  "generated_at": "2026-08-27T17:34:41Z",
   "timezone_note": "Iceland is UTC year-round (no DST); ts is UTC and equals local time. Friend timestamps are entered in Iceland local time and treated as UTC.",
   "counts": {
     "by_source": {
-      "chess": 7920,
+      "chess": 7934,
       "friend": 103
     },
     "input_rows": {
       "chess_com": 1193,
-      "lichess": 6733,
+      "lichess": 6747,
       "friend": 103
     },
     "excluded_daily_games": 6,
-    "total": 8023
+    "total": 8037
   },
   "observations": [
     {
@@ -32110,6 +32110,62 @@
     },
     {
       "ts": "2026-08-22T13:51:01Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-23T19:02:41Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-23T19:08:00Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-23T19:15:09Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-23T19:26:13Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-24T07:39:11Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-24T12:07:27Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-24T19:26:25Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T09:23:27Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T09:27:32Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T09:33:19Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T12:34:34Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T12:41:41Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-25T14:59:30Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-08-26T10:12:24Z",
       "source": "chess"
     }
   ]
