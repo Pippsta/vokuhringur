@@ -4,20 +4,20 @@
     "chess": "online chess endgame timestamps (chess.com + lichess merged)",
     "friend": "friend observations (manual, minute-precision, point observations)"
   },
-  "generated_at": "2026-09-18T10:59:17Z",
+  "generated_at": "2026-09-21T12:31:37Z",
   "timezone_note": "Iceland is UTC year-round (no DST); ts is UTC and equals local time. Friend timestamps are entered in Iceland local time and treated as UTC.",
   "counts": {
     "by_source": {
-      "chess": 8004,
+      "chess": 8020,
       "friend": 103
     },
     "input_rows": {
       "chess_com": 1193,
-      "lichess": 6817,
+      "lichess": 6833,
       "friend": 103
     },
     "excluded_daily_games": 6,
-    "total": 8107
+    "total": 8123
   },
   "observations": [
     {
@@ -32446,6 +32446,70 @@
     },
     {
       "ts": "2026-09-18T06:56:52Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-18T20:37:37Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-18T20:44:48Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-19T08:26:26Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-19T13:52:39Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-19T14:30:47Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-19T16:36:39Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-20T02:43:36Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-20T02:51:09Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-20T15:02:07Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-20T15:37:33Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-20T21:45:54Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-21T07:31:50Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-21T07:42:24Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-21T08:17:03Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-21T11:34:51Z",
+      "source": "chess"
+    },
+    {
+      "ts": "2026-09-21T11:50:48Z",
       "source": "chess"
     }
   ]
